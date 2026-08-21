@@ -31,8 +31,8 @@ const orderNumberElement =
 const orderDate =
     document.getElementById("orderDate");
 
-const blueLine =
-    document.getElementById("blueLine");
+const seller =
+    document.getElementById("Seller");
 
 const billTo =
     document.getElementById("billTo");
@@ -230,7 +230,7 @@ function createNewOrder() {
 
     items = [];
 
-    blueLine.value =
+    seller.value =
         "Blueline Offroad";
 
     billTo.value =
@@ -756,8 +756,8 @@ function saveOrder() {
                 currentOrderNumber
             ),
 
-        blueLine:
-            blueLine.value,
+        seller:
+            seller.value,
 
         orderDate:
             orderDate.value,
@@ -1111,8 +1111,8 @@ function openOrder(id) {
         order.orderNumber;
 
 
-    blueLine.value =
-        order.blueLine ||
+    seller.value =
+        order.seller ||
         "Blueline Offroad";
 
 
