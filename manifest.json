@@ -1,0 +1,16 @@
+{
+  "name": "Blueline Offroad Order Slip System",
+  "short_name": "Blueline Orders",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#17212b",
+  "description": "Blueline Offroad Order Slip Management System",
+  "icons": [
+    {
+      "src": "assets/blueline.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
