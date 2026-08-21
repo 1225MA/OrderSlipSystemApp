@@ -1,0 +1,1432 @@
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #e9edf2;
+
+    color: #111;
+}
+
+
+/* =========================================================
+   APPLICATION HEADER
+========================================================= */
+
+.app-header {
+
+    min-height: 78px;
+
+    padding:
+        12px 22px;
+
+    background:
+        #17212b;
+
+    color: white;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.app-brand {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.header-logo {
+
+    width: 52px;
+
+    height: 52px;
+
+    object-fit: contain;
+
+    border-radius: 5px;
+}
+
+
+.brand-text h1 {
+
+    margin: 0;
+
+    font-size: 21px;
+}
+
+
+.brand-text span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color: #bfc8d0;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   HEADER BUTTONS
+========================================================= */
+
+.header-buttons {
+
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+
+.top-btn {
+
+    border: none;
+
+    border-radius: 6px;
+
+    padding:
+        11px 17px;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.15s;
+}
+
+
+.top-btn:hover {
+
+    transform: translateY(-1px);
+
+    opacity: 0.92;
+}
+
+
+.top-btn.blue {
+
+    background:
+        #2980b9;
+}
+
+
+.top-btn.green {
+
+    background:
+        #27ae60;
+}
+
+
+.top-btn.orange {
+
+    background:
+        #f39c12;
+}
+
+
+.top-btn.purple {
+
+    background:
+        #8e44ad;
+}
+
+
+.top-btn.red {
+
+    background:
+        #c0392b;
+}
+
+
+/* =========================================================
+   MAIN APPLICATION
+========================================================= */
+
+.application {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(700px, 1fr)
+        360px;
+
+    min-height:
+        calc(100vh - 78px);
+}
+
+
+/* =========================================================
+   ORDER AREA
+========================================================= */
+
+.order-area {
+
+    padding: 28px;
+
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   LETTER SIZE PAPER
+========================================================= */
+
+.order-slip {
+
+    width:
+        8.5in;
+
+    min-height:
+        11in;
+
+    margin:
+        0 auto;
+
+    padding:
+        0.42in;
+
+    background:
+        white;
+
+    box-shadow:
+        0 5px 25px
+        rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================================================
+   ORDER HEADER
+========================================================= */
+
+.order-header {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr auto;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding-bottom: 15px;
+
+    border-bottom:
+        3px solid #222;
+}
+
+
+.company-area {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+
+.logo-container {
+
+    width: 90px;
+
+    height: 70px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    overflow: hidden;
+}
+
+
+.order-logo {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: contain;
+}
+
+
+.company-info h2 {
+
+    margin: 0;
+
+    font-size: 25px;
+}
+
+
+.company-info p {
+
+    margin:
+        4px 0 0;
+
+    color: #666;
+
+    font-size: 13px;
+}
+
+
+.order-title {
+
+    text-align: right;
+}
+
+
+.order-title h2 {
+
+    margin: 0;
+
+    font-size: 27px;
+}
+
+
+.order-number {
+
+    margin-top: 5px;
+
+    font-size: 14px;
+
+    font-weight: bold;
+}
+
+
+/* =========================================================
+   ORDER INFORMATION
+========================================================= */
+
+.order-information {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:
+        15px 25px;
+
+    margin-top: 20px;
+}
+
+
+.form-field label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 12px;
+
+    font-weight: bold;
+}
+
+
+.form-field input {
+
+    width: 100%;
+
+    height: 36px;
+
+    padding:
+        7px 9px;
+
+    border:
+        1px solid #aaa;
+
+    border-radius: 5px;
+
+    font-size: 13px;
+
+    outline: none;
+}
+
+
+.form-field input:focus {
+
+    border-color:
+        #2980b9;
+}
+
+
+/* =========================================================
+   ITEMS
+========================================================= */
+
+.items-section {
+
+    margin-top: 25px;
+}
+
+
+.items-table {
+
+    width: 100%;
+
+    border-collapse:
+        collapse;
+
+    table-layout:
+        fixed;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.items-table th {
+
+    padding:
+        9px 6px;
+
+    background:
+        #222;
+
+    color:
+        white;
+
+    font-size:
+        11px;
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   TABLE CELLS
+========================================================= */
+
+.items-table td {
+
+    padding:
+        8px 5px;
+
+    border:
+        none;
+
+    border-bottom:
+        1px solid #ddd;
+
+    font-size:
+        11px;
+
+    vertical-align:
+        middle;
+}
+
+
+/* =========================================================
+   COLUMN WIDTHS
+========================================================= */
+
+.qty-column {
+
+    width: 15%;
+}
+
+
+.description-column {
+
+    width: 28%;
+}
+
+
+.srp-column {
+
+    width: 13%;
+}
+
+
+.discount-column {
+
+    width: 20%;
+}
+
+
+.net-column {
+
+    width: 16%;
+}
+
+
+.action-column {
+
+    width: 8%;
+}
+
+
+/* =========================================================
+   TABLE INPUTS
+   No boxes.
+========================================================= */
+
+.items-table input,
+.items-table select {
+
+    width: 100%;
+
+    height: 30px;
+
+    padding:
+        3px 4px;
+
+    border:
+        none;
+
+    outline:
+        none;
+
+    background:
+        transparent;
+
+    border-radius:
+        0;
+
+    font-size:
+        11px;
+}
+
+
+.items-table input:focus,
+.items-table select:focus {
+
+    border-bottom:
+        1px solid #2980b9;
+
+    background:
+        #f8fbfd;
+}
+
+
+/* =========================================================
+   QTY
+========================================================= */
+
+.qty-wrapper {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 4px;
+}
+
+
+.qty-number {
+
+    width:
+        45px !important;
+
+    text-align:
+        center;
+}
+
+
+.qty-unit {
+
+    width:
+        58px !important;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================================================
+   DESCRIPTION
+========================================================= */
+
+.description {
+
+    padding-left:
+        5px !important;
+}
+
+
+/* =========================================================
+   SRP
+========================================================= */
+
+.srp {
+
+    text-align:
+        right;
+}
+
+
+/* =========================================================
+   DISCOUNT
+========================================================= */
+
+.discounts {
+
+    text-align:
+        center;
+}
+
+
+/* =========================================================
+   NET PRICE
+========================================================= */
+
+.net-price {
+
+    text-align:
+        right;
+
+    font-size:
+        12px !important;
+
+    font-weight:
+        bold;
+
+    white-space:
+        nowrap;
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.delete-item {
+
+    width:
+        34px;
+
+    height:
+        32px;
+
+    padding:
+        0;
+
+    border:
+        none;
+
+    border-radius:
+        5px;
+
+    background:
+        #e74c3c;
+
+    color:
+        white;
+
+    font-weight:
+        bold;
+
+    cursor:
+        pointer;
+}
+
+
+.delete-item:hover {
+
+    background:
+        #c0392b;
+}
+
+
+/* =========================================================
+   ADD ITEM
+========================================================= */
+
+.add-item-btn {
+
+    margin-top:
+        13px;
+
+    border:
+        none;
+
+    border-radius:
+        6px;
+
+    padding:
+        11px 17px;
+
+    background:
+        #2980b9;
+
+    color:
+        white;
+
+    font-size:
+        13px;
+
+    font-weight:
+        bold;
+
+    cursor:
+        pointer;
+}
+
+
+.add-item-btn:hover {
+
+    opacity:
+        0.9;
+}
+
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.total-section {
+
+    display:
+        flex;
+
+    justify-content:
+        flex-end;
+
+    margin-top:
+        25px;
+}
+
+
+.total-box {
+
+    width:
+        45%;
+}
+
+
+.total-label {
+
+    margin-bottom:
+        5px;
+
+    font-size:
+        14px;
+
+    font-weight:
+        bold;
+}
+
+
+.total-value {
+
+    min-height:
+        48px;
+
+    padding:
+        8px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        flex-end;
+
+    background:
+        #f5f5f5;
+
+    border:
+        1px solid #aaa;
+
+    font-size:
+        23px;
+
+    font-weight:
+        800;
+}
+
+
+/* =========================================================
+   SIGNATURE
+========================================================= */
+
+/*
+    IMPORTANT:
+    There is NO Prepared By signature here.
+
+    Only Received By appears.
+*/
+
+.signature-section {
+
+    display:
+        flex;
+
+    justify-content:
+        flex-end;
+
+    margin-top:
+        65px;
+}
+
+
+.signature-box {
+
+    width:
+        50%;
+
+    text-align:
+        center;
+}
+
+
+.signature-line {
+
+    height:
+        35px;
+
+    border-bottom:
+        1px solid #111;
+
+    margin-bottom:
+        8px;
+}
+
+
+.signature-box strong {
+
+    display:
+        block;
+
+    font-size:
+        12px;
+}
+
+
+.signature-box span {
+
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        #666;
+
+    font-size:
+        9px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.order-footer {
+
+    margin-top:
+        40px;
+
+    padding-top:
+        10px;
+
+    border-top:
+        1px solid #ddd;
+
+    text-align:
+        center;
+
+    color:
+        #777;
+
+    font-size:
+        9px;
+}
+
+
+/* =========================================================
+   HISTORY SIDEBAR
+========================================================= */
+
+.history-panel {
+
+    height:
+        calc(100vh - 78px);
+
+    background:
+        #f7f9fb;
+
+    border-left:
+        1px solid #d6dce2;
+
+    position:
+        sticky;
+
+    top:
+        0;
+
+    overflow:
+        hidden;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+}
+
+
+/* =========================================================
+   HISTORY HEADER
+========================================================= */
+
+.history-header {
+
+    padding:
+        20px;
+
+    background:
+        #17212b;
+
+    color:
+        white;
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+}
+
+
+.history-header h2 {
+
+    margin:
+        0;
+
+    font-size:
+        18px;
+}
+
+
+.history-header span {
+
+    display:
+        block;
+
+    margin-top:
+        4px;
+
+    color:
+        #bfc8d0;
+
+    font-size:
+        11px;
+}
+
+
+.clear-history-btn {
+
+    border:
+        none;
+
+    background:
+        #c0392b;
+
+    color:
+        white;
+
+    border-radius:
+        5px;
+
+    padding:
+        7px 10px;
+
+    font-size:
+        11px;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================================================
+   HISTORY SEARCH
+========================================================= */
+
+.history-search {
+
+    padding:
+        14px;
+
+    background:
+        white;
+
+    border-bottom:
+        1px solid #ddd;
+}
+
+
+.history-search input {
+
+    width:
+        100%;
+
+    height:
+        38px;
+
+    padding:
+        8px 10px;
+
+    border:
+        1px solid #bbb;
+
+    border-radius:
+        6px;
+
+    font-size:
+        12px;
+
+    outline:
+        none;
+}
+
+
+.history-search input:focus {
+
+    border-color:
+        #2980b9;
+}
+
+
+/* =========================================================
+   HISTORY LIST
+========================================================= */
+
+.history-list {
+
+    flex:
+        1;
+
+    overflow-y:
+        auto;
+
+    padding:
+        12px;
+}
+
+
+/* =========================================================
+   HISTORY CARD
+========================================================= */
+
+.history-card {
+
+    margin-bottom:
+        10px;
+
+    padding:
+        12px;
+
+    background:
+        white;
+
+    border:
+        1px solid #d9dee3;
+
+    border-radius:
+        7px;
+
+    transition:
+        0.15s;
+}
+
+
+.history-card:hover {
+
+    border-color:
+        #2980b9;
+
+    box-shadow:
+        0 2px 8px
+        rgba(0, 0, 0, 0.06);
+}
+
+
+.history-card-top {
+
+    display:
+        flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+}
+
+
+.history-order-number {
+
+    font-size:
+        13px;
+
+    font-weight:
+        bold;
+}
+
+
+.history-date {
+
+    color:
+        #777;
+
+    font-size:
+        10px;
+}
+
+
+.history-customer {
+
+    margin-top:
+        8px;
+
+    font-size:
+        12px;
+}
+
+
+.history-total {
+
+    margin-top:
+        7px;
+
+    font-size:
+        13px;
+
+    font-weight:
+        bold;
+}
+
+
+.history-actions {
+
+    display:
+        flex;
+
+    gap:
+        6px;
+
+    margin-top:
+        10px;
+}
+
+
+.history-open {
+
+    flex:
+        1;
+
+    border:
+        none;
+
+    border-radius:
+        4px;
+
+    padding:
+        7px;
+
+    background:
+        #2980b9;
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+
+    font-size:
+        11px;
+}
+
+
+.history-delete {
+
+    border:
+        none;
+
+    border-radius:
+        4px;
+
+    padding:
+        7px 10px;
+
+    background:
+        #e74c3c;
+
+    color:
+        white;
+
+    cursor:
+        pointer;
+
+    font-size:
+        11px;
+}
+
+
+/* =========================================================
+   EMPTY HISTORY
+========================================================= */
+
+.history-empty {
+
+    padding:
+        35px 15px;
+
+    text-align:
+        center;
+
+    color:
+        #777;
+
+    font-size:
+        12px;
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+========================================================= */
+
+.status-message {
+
+    position:
+        fixed;
+
+    right:
+        20px;
+
+    bottom:
+        20px;
+
+    padding:
+        10px 15px;
+
+    background:
+        #17212b;
+
+    color:
+        white;
+
+    border-radius:
+        6px;
+
+    font-size:
+        12px;
+
+    display:
+        none;
+
+    z-index:
+        9999;
+}
+
+
+/* =========================================================
+   PRINT - LETTER SIZE
+========================================================= */
+
+@page {
+
+    size:
+        Letter;
+
+    margin:
+        0;
+}
+
+
+@media print {
+
+    body {
+
+        background:
+            white;
+    }
+
+
+    .app-header,
+    .history-panel,
+    .add-item-btn,
+    .delete-item,
+    .status-message {
+
+        display:
+            none !important;
+    }
+
+
+    .application {
+
+        display:
+            block;
+
+        min-height:
+            auto;
+    }
+
+
+    .order-area {
+
+        padding:
+            0;
+
+        overflow:
+            visible;
+    }
+
+
+    .order-slip {
+
+        width:
+            8.5in;
+
+        min-height:
+            11in;
+
+        margin:
+            0;
+
+        padding:
+            0.42in;
+
+        box-shadow:
+            none;
+    }
+
+
+    .form-field input {
+
+        border:
+            none;
+
+        background:
+            transparent;
+    }
+
+
+    .items-table input,
+    .items-table select {
+
+        border:
+            none !important;
+
+        background:
+            transparent !important;
+    }
+
+
+    .items-table td {
+
+        border-bottom:
+            1px solid #ddd;
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media screen and (max-width: 1200px) {
+
+    .application {
+
+        grid-template-columns:
+            minmax(650px, 1fr)
+            320px;
+    }
+}
+
+
+@media screen and (max-width: 1000px) {
+
+    .application {
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .history-panel {
+
+        position:
+            static;
+
+        height:
+            500px;
+
+        border-left:
+            none;
+
+        border-top:
+            1px solid #ddd;
+    }
+}
+
+
+@media screen and (max-width: 800px) {
+
+    .app-header {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+    }
+
+
+    .order-area {
+
+        padding:
+            10px;
+    }
+}

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Blueline Offroad - Order Slip System</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!--
+        html2canvas
+        Used for PNG export
+    -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    ></script>
+
+    <!--
+        jsPDF
+        Used for PDF export
+    -->
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    ></script>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         TOP APPLICATION HEADER
+    ====================================================== -->
+
+    <header class="app-header">
+
+        <div class="app-brand">
+
+            <img
+                src="assets/blueline.jpg"
+                alt="Blueline Offroad"
+                class="header-logo"
+            >
+
+            <div class="brand-text">
+
+                <h1>
+                    Blueline Offroad
+                </h1>
+
+                <span>
+                    Order Slip System
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-buttons">
+
+            <button
+                id="newOrderBtn"
+                class="top-btn blue"
+                type="button"
+            >
+                New Order
+            </button>
+
+            <button
+                id="saveOrderBtn"
+                class="top-btn green"
+                type="button"
+            >
+                Save
+            </button>
+
+            <button
+                id="printBtn"
+                class="top-btn orange"
+                type="button"
+            >
+                Print
+            </button>
+
+            <button
+                id="pngBtn"
+                class="top-btn purple"
+                type="button"
+            >
+                PNG
+            </button>
+
+            <button
+                id="pdfBtn"
+                class="top-btn red"
+                type="button"
+            >
+                PDF
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN APPLICATION
+    ====================================================== -->
+
+    <main class="application">
+
+        <!-- =================================================
+             ORDER AREA
+        ================================================== -->
+
+        <section class="order-area">
+
+            <div
+                id="orderSlip"
+                class="order-slip"
+            >
+
+                <!-- =========================================
+                     ORDER HEADER
+                ========================================== -->
+
+                <div class="order-header">
+
+                    <div class="company-area">
+
+                        <div class="logo-container">
+
+                            <img
+                                src="assets/blueline.jpg"
+                                alt="Blueline Offroad"
+                                class="order-logo"
+                            >
+
+                        </div>
+
+                        <div class="company-info">
+
+                            <h2>
+                                Blueline Offroad
+                            </h2>
+
+                            <p>
+                                Order Management
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="order-title">
+
+                        <h2>
+                            ORDER SLIP
+                        </h2>
+
+                        <div
+                            id="orderNumber"
+                            class="order-number"
+                        >
+                            OS # 00001
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     ORDER INFORMATION
+                ========================================== -->
+
+                <div class="order-information">
+
+                    <div class="form-field">
+
+                        <label for="blueLine">
+                            BlueLine
+                        </label>
+
+                        <input
+                            id="blueLine"
+                            type="text"
+                            value="Blueline Offroad"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="orderDate">
+                            Order Date
+                        </label>
+
+                        <input
+                            id="orderDate"
+                            type="date"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="billTo">
+                            Bill To
+                        </label>
+
+                        <input
+                            id="billTo"
+                            type="text"
+                            placeholder="Customer name"
+                        >
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        <label for="preparedBy">
+                            Prepared By
+                        </label>
+
+                        <input
+                            id="preparedBy"
+                            type="text"
+                            placeholder="Prepared by"
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     ITEMS TABLE
+                ========================================== -->
+
+                <div class="items-section">
+
+                    <table class="items-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th class="qty-column">
+                                    Qty
+                                </th>
+
+                                <th class="description-column">
+                                    Item Description
+                                </th>
+
+                                <th class="srp-column">
+                                    SRP
+                                </th>
+
+                                <th class="discount-column">
+                                    Discount %
+                                </th>
+
+                                <th class="net-column">
+                                    Net Price
+                                </th>
+
+                                <th class="action-column">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="itemsBody">
+                        </tbody>
+
+                    </table>
+
+
+                    <button
+                        id="addItemBtn"
+                        class="add-item-btn"
+                        type="button"
+                    >
+                        + Add Item
+                    </button>
+
+                </div>
+
+
+                <!-- =========================================
+                     TOTAL
+                ========================================== -->
+
+                <div class="total-section">
+
+                    <div class="total-box">
+
+                        <div class="total-label">
+                            Total
+                        </div>
+
+                        <div
+                            id="totalValue"
+                            class="total-value"
+                        >
+                            0.00
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     SIGNATURE
+                     
+                     IMPORTANT:
+                     Prepared By signature has been removed.
+                     
+                     Only Received By remains.
+                ========================================== -->
+
+                <div class="signature-section">
+
+                    <div class="signature-spacer"></div>
+
+                    <div class="signature-box">
+
+                        <div class="signature-line">
+                        </div>
+
+                        <strong>
+                            Received By
+                        </strong>
+
+                        <span>
+                            Signature / Printed Name
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =========================================
+                     FOOTER
+                ========================================== -->
+
+                <div class="order-footer">
+
+                    Powered by Blueline Offroad Order Management
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             HISTORY SIDEBAR
+        ================================================== -->
+
+        <aside class="history-panel">
+
+            <div class="history-header">
+
+                <div>
+
+                    <h2>
+                        Order History
+                    </h2>
+
+                    <span id="historyCount">
+                        0 orders
+                    </span>
+
+                </div>
+
+                <button
+                    id="clearHistoryBtn"
+                    class="clear-history-btn"
+                    type="button"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+
+            <!-- SEARCH -->
+
+            <div class="history-search">
+
+                <input
+                    id="historySearch"
+                    type="text"
+                    placeholder="Search order or customer..."
+                >
+
+            </div>
+
+
+            <!-- HISTORY LIST -->
+
+            <div
+                id="historyList"
+                class="history-list"
+            >
+            </div>
+
+        </aside>
+
+    </main>
+
+
+    <!-- =====================================================
+         STATUS MESSAGE
+    ====================================================== -->
+
+    <div
+        id="statusMessage"
+        class="status-message"
+    >
+    </div>
+
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
