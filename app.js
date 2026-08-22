@@ -390,11 +390,10 @@ function renderItems() {
                 <td>
 
                     <input
-                        type="number"
-                        min="0"
-                        step="0.01"
+                        type="text"
+                        inputmode="decimal"
                         class="srp"
-                        value="${item.srp}"
+                        value="${formatMoney(item.srp)}"
                         data-index="${index}"
                         data-field="srp"
                     >
@@ -508,6 +507,38 @@ function attachItemEvents() {
 
         }
     );
+
+
+    /*
+       Format SRP with commas
+       after the user finishes editing.
+    */
+
+    const srpInputs =
+        itemsBody.querySelectorAll(
+            ".srp"
+        );
+
+
+    srpInputs.forEach(
+        input => {
+
+            input.addEventListener(
+                "blur",
+                () => {
+
+                    input.value =
+                        formatMoney(
+                            parseMoney(
+                                input.value
+                            )
+                        );
+
+                }
+            );
+
+        }
+    );
 }
 
 
@@ -545,7 +576,9 @@ function handleItemChange(event) {
     else if (field === "srp") {
 
         items[index].srp =
-            Number(element.value) || 0;
+            parseMoney(
+                element.value
+            );
 
     }
 
@@ -750,54 +783,41 @@ function updateTotalEditState() {
 
 function calculateTotal() {
 
-    let calculatedTotal =
-        0;
-
+    let calculatedTotal = 0;
 
     items.forEach(
         item => {
 
             calculatedTotal +=
-                calculateItemNet(
-                    item
-                );
+                calculateItemNet(item);
 
         }
     );
-
 
     const editable =
         areAllPricesZero();
 
 
-    /*
-       When SRP / Net Price has a value,
-       calculate Total automatically.
-    */
-
     if (!editable) {
 
         totalValue.value =
-            calculatedTotal.toFixed(2);
+            formatMoney(calculatedTotal);
 
     }
+    else {
 
-    /*
-       When everything is zero,
-       allow manual Total.
-    */
+        /*
+           Keep the manually entered Total
+           when all SRP values are zero.
+        */
 
-    else if (
-        totalValue.value === "" ||
-        Number.isNaN(
-            Number(
+        const currentValue =
+            parseMoney(
                 totalValue.value
-            )
-        )
-    ) {
+            );
 
         totalValue.value =
-            "0.00";
+            formatMoney(currentValue);
     }
 
 
@@ -805,11 +825,7 @@ function calculateTotal() {
 
 
     return editable
-        ? (
-            Number(
-                totalValue.value
-            ) || 0
-        )
+        ? parseMoney(totalValue.value)
         : calculatedTotal;
 }
 
@@ -825,13 +841,13 @@ function handleTotalInput() {
 
 
     const value =
-        Number(
+        parseMoney(
             totalValue.value
-        ) || 0;
+        );
 
 
     totalValue.value =
-        value.toFixed(2);
+        formatMoney(value);
 }
 
 
@@ -850,6 +866,15 @@ function formatMoney(number) {
             maximumFractionDigits: 2
         }
     );
+}
+
+
+function parseMoney(value) {
+
+    return Number(
+        String(value || "")
+            .replace(/,/g, "")
+    ) || 0;
 }
 
 
@@ -1306,9 +1331,9 @@ function openOrder(id) {
         ) {
 
             totalValue.value =
-                Number(
+                formatMoney(
                     order.total || 0
-                ).toFixed(2);
+                );
 
         }
 
