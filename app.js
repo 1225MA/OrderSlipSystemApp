@@ -1463,6 +1463,86 @@ function printOrder() {
     window.print();
 }
 
+/* =========================================================
+   PREPARE TOTAL FOR PNG / PDF EXPORT
+========================================================= */
+
+function prepareTotalForExport(clonedDocument) {
+
+    const clonedTotal =
+        clonedDocument.getElementById("totalValue");
+
+    if (!clonedTotal) {
+        return;
+    }
+
+    const totalBox =
+        clonedDocument.createElement("div");
+
+    totalBox.textContent =
+        clonedTotal.value || "0.00";
+
+    totalBox.style.width =
+        "100%";
+
+    totalBox.style.height =
+        clonedTotal.offsetHeight + "px";
+
+    totalBox.style.boxSizing =
+        "border-box";
+
+    totalBox.style.padding =
+        "8px 12px";
+
+    totalBox.style.display =
+        "flex";
+
+    totalBox.style.alignItems =
+        "center";
+
+    totalBox.style.justifyContent =
+        "flex-end";
+
+    totalBox.style.textAlign =
+        "right";
+
+    totalBox.style.fontFamily =
+        "Arial, Helvetica, sans-serif";
+
+    totalBox.style.fontWeight =
+        "800";
+
+    totalBox.style.fontSize =
+        clonedTotal.style.fontSize ||
+        "32px";
+
+    totalBox.style.lineHeight =
+        "1";
+
+    totalBox.style.whiteSpace =
+        "nowrap";
+
+    totalBox.style.overflow =
+        "visible";
+
+    totalBox.style.color =
+        "#111";
+
+    totalBox.style.backgroundColor =
+        "#f8fbff";
+
+    totalBox.style.border =
+        "1px solid #aaa";
+
+    totalBox.style.borderRadius =
+        "0";
+
+    clonedTotal.parentNode.replaceChild(
+        totalBox,
+        clonedTotal
+    );
+}
+
 
 /* =========================================================
    PNG DOWNLOAD
@@ -1484,15 +1564,26 @@ async function downloadPNG() {
 
 
         const canvas =
-            await html2canvas(
-                orderSlip,
-                {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor:
-                        "#ffffff"
+    await html2canvas(
+        orderSlip,
+        {
+            scale: 2,
+
+            useCORS: true,
+
+            backgroundColor:
+                "#ffffff",
+
+            onclone:
+                function(clonedDocument) {
+
+                    prepareTotalForExport(
+                        clonedDocument
+                    );
+
                 }
-            );
+        }
+    );
 
 
         const link =
@@ -1556,15 +1647,26 @@ async function downloadPDF() {
 
 
         const canvas =
-            await html2canvas(
-                orderSlip,
-                {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor:
-                        "#ffffff"
+    await html2canvas(
+        orderSlip,
+        {
+            scale: 2,
+
+            useCORS: true,
+
+            backgroundColor:
+                "#ffffff",
+
+            onclone:
+                function(clonedDocument) {
+
+                    prepareTotalForExport(
+                        clonedDocument
+                    );
+
                 }
-            );
+        }
+    );
 
 
         const imageData =
