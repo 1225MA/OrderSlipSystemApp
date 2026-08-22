@@ -730,7 +730,7 @@ body {
 .total-box {
 
     width:
-        45%;
+        35%;
 }
 
 
@@ -750,7 +750,7 @@ body {
 .total-value {
 
     min-height:
-        48px;
+        38px;
 
     padding:
         8px;
@@ -774,7 +774,7 @@ body {
         23px;
 
     font-weight:
-        800;
+        700;
 }
 
 
@@ -798,14 +798,14 @@ body {
         flex-end;
 
     margin-top:
-        65px;
+        20px;
 }
 
 
 .signature-box {
 
     width:
-        50%;
+        35%;
 
     text-align:
         center;
@@ -815,7 +815,7 @@ body {
 .signature-line {
 
     height:
-        35px;
+        28px;
 
     border-bottom:
         1px solid #111;
@@ -858,10 +858,10 @@ body {
 .order-footer {
 
     margin-top:
-        40px;
+        20px;
 
     padding-top:
-        10px;
+        5px;
 
     border-top:
         1px solid #ddd;
