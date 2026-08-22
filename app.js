@@ -25,6 +25,12 @@ const itemsBody =
 const totalValue =
     document.getElementById("totalValue");
 
+const remarks =
+    document.getElementById("remarks");
+
+const totalEditHint =
+    document.getElementById("totalEditHint");
+
 const orderNumberElement =
     document.getElementById("orderNumber");
 
@@ -157,6 +163,20 @@ function setupButtons() {
             "input",
             renderHistory
         );
+
+
+    totalValue
+        .addEventListener(
+            "input",
+            handleTotalInput
+        );
+
+
+    totalValue
+        .addEventListener(
+            "change",
+            handleTotalInput
+        );
 }
 
 
@@ -238,6 +258,12 @@ function createNewOrder() {
 
     preparedBy.value =
         "";
+
+    remarks.value =
+        "";
+
+    totalValue.value =
+        "0.00";
 
     setToday();
 
@@ -452,6 +478,7 @@ function attachItemEvents() {
                 "change",
                 handleItemChange
             );
+
         }
     );
 
@@ -475,8 +502,10 @@ function attachItemEvents() {
                         );
 
                     deleteItem(index);
+
                 }
             );
+
         }
     );
 }
@@ -500,35 +529,31 @@ function handleItemChange(event) {
         element.dataset.field;
 
 
-    if (
-        !items[index]
-    ) {
+    if (!items[index]) {
+
         return;
     }
 
 
-    if (
-        field === "qty"
-    ) {
+    if (field === "qty") {
 
         items[index].qty =
             Number(element.value) || 0;
+
     }
 
-
-    else if (
-        field === "srp"
-    ) {
+    else if (field === "srp") {
 
         items[index].srp =
             Number(element.value) || 0;
-    }
 
+    }
 
     else {
 
         items[index][field] =
             element.value;
+
     }
 
 
@@ -544,9 +569,7 @@ function handleItemChange(event) {
 
 function deleteItem(index) {
 
-    if (
-        items.length === 1
-    ) {
+    if (items.length === 1) {
 
         showStatus(
             "At least one item is required."
@@ -570,26 +593,6 @@ function deleteItem(index) {
 
 /* =========================================================
    MULTIPLE DISCOUNTS
-=========================================================
-
-   Example:
-
-   20, 10, 5
-
-   means:
-
-   Original price = 28,500
-
-   20% discount
-   then 10%
-   then 5%
-
-   Calculation:
-
-   28,500 × 80%
-   × 90%
-   × 95%
-
 ========================================================= */
 
 function calculateItemNet(item) {
@@ -604,9 +607,7 @@ function calculateItemNet(item) {
         ).trim();
 
 
-    if (
-        discountString === ""
-    ) {
+    if (discountString === "") {
 
         return (
             price *
@@ -640,6 +641,7 @@ function calculateItemNet(item) {
                     1 -
                     discount / 100
                 );
+
         }
     );
 
@@ -662,6 +664,7 @@ function updateRowNetPrice(index) {
 
 
     if (!rows[index]) {
+
         return;
     }
 
@@ -674,6 +677,7 @@ function updateRowNetPrice(index) {
 
 
     if (!netInput) {
+
         return;
     }
 
@@ -691,27 +695,143 @@ function updateRowNetPrice(index) {
    TOTAL
 ========================================================= */
 
+function areAllPricesZero() {
+
+    if (items.length === 0) {
+
+        return true;
+    }
+
+
+    return items.every(
+        item => {
+
+            const srp =
+                Number(item.srp) || 0;
+
+            const net =
+                calculateItemNet(item);
+
+
+            return (
+                srp === 0 &&
+                net === 0
+            );
+        }
+    );
+}
+
+
+function updateTotalEditState() {
+
+    const editable =
+        areAllPricesZero();
+
+
+    totalValue.readOnly =
+        !editable;
+
+
+    totalValue.classList.toggle(
+        "total-editable",
+        editable
+    );
+
+
+    totalEditHint.textContent =
+        editable
+            ? "Editable because all SRP and Net Price values are 0.00."
+            : "Total is calculated automatically while an item has an SRP or Net Price above 0.00.";
+
+
+    return editable;
+}
+
+
 function calculateTotal() {
 
-    let total = 0;
+    let calculatedTotal =
+        0;
 
 
     items.forEach(
         item => {
 
-            total +=
+            calculatedTotal +=
                 calculateItemNet(
                     item
                 );
+
         }
     );
 
 
-    totalValue.textContent =
-        formatMoney(total);
+    const editable =
+        areAllPricesZero();
 
 
-    return total;
+    /*
+       When SRP / Net Price has a value,
+       calculate Total automatically.
+    */
+
+    if (!editable) {
+
+        totalValue.value =
+            calculatedTotal.toFixed(2);
+
+    }
+
+    /*
+       When everything is zero,
+       allow manual Total.
+    */
+
+    else if (
+        totalValue.value === "" ||
+        Number.isNaN(
+            Number(
+                totalValue.value
+            )
+        )
+    ) {
+
+        totalValue.value =
+            "0.00";
+    }
+
+
+    updateTotalEditState();
+
+
+    return editable
+        ? (
+            Number(
+                totalValue.value
+            ) || 0
+        )
+        : calculatedTotal;
+}
+
+
+function handleTotalInput() {
+
+    if (!areAllPricesZero()) {
+
+        calculateTotal();
+
+        return;
+    }
+
+
+    const value =
+        Number(
+            totalValue.value
+        ) || 0;
+
+
+    totalValue.value =
+        value.toFixed(2);
 }
 
 
@@ -768,6 +888,9 @@ function saveOrder() {
         preparedBy:
             preparedBy.value,
 
+        remarks:
+            remarks.value,
+
         items:
             JSON.parse(
                 JSON.stringify(items)
@@ -778,13 +901,9 @@ function saveOrder() {
 
         savedAt:
             new Date().toISOString()
+
     };
 
-
-    /*
-       If the same order number already exists,
-       update it instead of creating a duplicate.
-    */
 
     const existingIndex =
         orderHistory.findIndex(
@@ -794,19 +913,20 @@ function saveOrder() {
         );
 
 
-    if (
-        existingIndex >= 0
-    ) {
+    if (existingIndex >= 0) {
 
         orderHistory[
             existingIndex
         ] = order;
 
-    } else {
+    }
+
+    else {
 
         orderHistory.unshift(
             order
         );
+
     }
 
 
@@ -818,11 +938,8 @@ function saveOrder() {
     );
 
 
-    /*
-       Next order number
-    */
-
     currentOrderNumber++;
+
 
     localStorage.setItem(
         ORDER_NUMBER_STORAGE_KEY,
@@ -859,9 +976,12 @@ function loadHistory() {
                 JSON.parse(
                     stored
                 );
+
         }
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Could not load order history:",
@@ -869,6 +989,7 @@ function loadHistory() {
         );
 
         orderHistory = [];
+
     }
 }
 
@@ -901,10 +1022,12 @@ function renderHistory() {
                     )
                     .toLowerCase();
 
+
                 return (
                     number.includes(search) ||
                     customer.includes(search)
                 );
+
             }
         );
 
@@ -917,9 +1040,7 @@ function renderHistory() {
         }`;
 
 
-    if (
-        filtered.length === 0
-    ) {
+    if (filtered.length === 0) {
 
         historyList.innerHTML = `
 
@@ -950,6 +1071,7 @@ function renderHistory() {
                 document.createElement(
                     "div"
                 );
+
 
             card.className =
                 "history-card";
@@ -1026,6 +1148,7 @@ function renderHistory() {
             historyList.appendChild(
                 card
             );
+
         }
     );
 
@@ -1058,8 +1181,10 @@ function attachHistoryEvents() {
                             button.dataset.id
                         )
                     );
+
                 }
             );
+
         }
     );
 
@@ -1082,8 +1207,10 @@ function attachHistoryEvents() {
                             button.dataset.id
                         )
                     );
+
                 }
             );
+
         }
     );
 }
@@ -1103,6 +1230,7 @@ function openOrder(id) {
 
 
     if (!order) {
+
         return;
     }
 
@@ -1131,6 +1259,11 @@ function openOrder(id) {
         "";
 
 
+    remarks.value =
+        order.remarks ||
+        "";
+
+
     items =
         JSON.parse(
             JSON.stringify(
@@ -1139,17 +1272,49 @@ function openOrder(id) {
         );
 
 
-    if (
-        items.length === 0
-    ) {
+    if (items.length === 0) {
 
         addItem();
 
-    } else {
+    }
+
+    else {
 
         renderItems();
 
+
+        /*
+           Restore the saved manual Total
+           when all prices are zero.
+        */
+
+        if (
+            items.every(
+                item => {
+
+                    const srp =
+                        Number(item.srp) || 0;
+
+                    return (
+                        srp === 0 &&
+                        calculateItemNet(item) === 0
+                    );
+
+                }
+            ) &&
+            order.total !== undefined
+        ) {
+
+            totalValue.value =
+                Number(
+                    order.total || 0
+                ).toFixed(2);
+
+        }
+
+
         calculateTotal();
+
     }
 
 
@@ -1176,6 +1341,7 @@ function deleteHistoryOrder(id) {
 
 
     if (!order) {
+
         return;
     }
 
@@ -1187,6 +1353,7 @@ function deleteHistoryOrder(id) {
 
 
     if (!confirmed) {
+
         return;
     }
 
@@ -1240,6 +1407,7 @@ function clearHistory() {
 
 
     if (!confirmed) {
+
         return;
     }
 
@@ -1295,9 +1463,7 @@ async function downloadPNG() {
                 orderSlip,
                 {
                     scale: 2,
-
                     useCORS: true,
-
                     backgroundColor:
                         "#ffffff"
                 }
@@ -1329,7 +1495,9 @@ async function downloadPNG() {
             "PNG downloaded."
         );
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             error
@@ -1338,6 +1506,7 @@ async function downloadPNG() {
         showStatus(
             "PNG export failed."
         );
+
     }
 }
 
@@ -1366,9 +1535,7 @@ async function downloadPDF() {
                 orderSlip,
                 {
                     scale: 2,
-
                     useCORS: true,
-
                     backgroundColor:
                         "#ffffff"
                 }
@@ -1386,11 +1553,6 @@ async function downloadPDF() {
         } =
             window.jspdf;
 
-
-        /*
-           Letter size:
-           8.5 x 11 inches
-        */
 
         const pdf =
             new jsPDF(
@@ -1414,11 +1576,6 @@ async function downloadPDF() {
             11;
 
 
-        /*
-           Maintain the original
-           Letter-size ratio.
-        */
-
         const imageRatio =
             canvas.height /
             canvas.width;
@@ -1432,11 +1589,6 @@ async function downloadPDF() {
             imageWidth *
             imageRatio;
 
-
-        /*
-           If image becomes too tall,
-           scale it down.
-        */
 
         if (
             imageHeight >
@@ -1484,7 +1636,9 @@ async function downloadPDF() {
             "PDF downloaded."
         );
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             error
@@ -1493,6 +1647,7 @@ async function downloadPDF() {
         showStatus(
             "PDF export failed."
         );
+
     }
 }
 
@@ -1504,6 +1659,7 @@ async function downloadPDF() {
 function formatDate(dateString) {
 
     if (!dateString) {
+
         return "";
     }
 
