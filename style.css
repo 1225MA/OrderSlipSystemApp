@@ -1502,3 +1502,29 @@ body {
     }
 
 }
+
+/* =========================================================
+   PRINT / PNG / PDF EXPORT
+   HIDE PLACEHOLDERS AND TOTAL EDIT HINT
+========================================================= */
+
+@media print {
+
+    /* Hide the Total helper text */
+    #totalEditHint {
+        display: none !important;
+    }
+
+    /* Hide Discount placeholder when the field is empty */
+    .discounts::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+
+    /* Hide other input placeholders during printing */
+    input::placeholder,
+    textarea::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+}
