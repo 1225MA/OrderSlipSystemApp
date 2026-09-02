@@ -384,8 +384,6 @@ function renderItems() {
                     >${escapeHTML(item.description)}</textarea>
 
                 </td>
-
-
                 <td>
 
                     <input
