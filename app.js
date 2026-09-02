@@ -1542,51 +1542,90 @@ function prepareTotalForExport(clonedDocument) {
 
 
 /* =========================================================
-   PNG DOWNLOAD
+   PNG DOWNLOAD - LETTER SIZE
 ========================================================= */
 
 async function downloadPNG() {
 
     const orderSlip =
-        document.getElementById(
-            "orderSlip"
-        );
+        document.getElementById("orderSlip");
 
 
     try {
 
-        showStatus(
-            "Creating PNG..."
-        );
+        showStatus("Creating PNG...");
 
 
         const canvas =
-    await html2canvas(
-        orderSlip,
-        {
-            scale: 2,
+            await html2canvas(
+                orderSlip,
+                {
+                    scale: 2,
 
-            useCORS: true,
+                    useCORS: true,
 
-            backgroundColor:
-                "#ffffff",
+                    backgroundColor:
+                        "#ffffff",
 
-            onclone:
-                function(clonedDocument) {
+                    width: 816,
 
-                    prepareTotalForExport(
-                        clonedDocument
-                    );
+                    height: 1056,
 
+                    windowWidth: 816,
+
+                    windowHeight: 1056,
+
+                    onclone:
+                        function(clonedDocument) {
+
+                            const clonedSlip =
+                                clonedDocument.getElementById(
+                                    "orderSlip"
+                                );
+
+
+                            if (clonedSlip) {
+
+                                /*
+                                   LETTER SIZE
+                                   8.5 x 11 inches
+                                */
+
+                                clonedSlip.style.width =
+                                    "8.5in";
+
+                                clonedSlip.style.height =
+                                    "11in";
+
+                                clonedSlip.style.minHeight =
+                                    "11in";
+
+                                clonedSlip.style.maxHeight =
+                                    "11in";
+
+                                clonedSlip.style.overflow =
+                                    "hidden";
+
+                                clonedSlip.style.boxSizing =
+                                    "border-box";
+                            }
+
+
+                            /*
+                               Hide export-only items
+                            */
+
+                            prepareTotalForExport(
+                                clonedDocument
+                            );
+
+                        }
                 }
-        }
-    );
+            );
 
 
         const link =
-            document.createElement(
-                "a"
-            );
+            document.createElement("a");
 
 
         link.download =
@@ -1596,80 +1635,111 @@ async function downloadPNG() {
 
 
         link.href =
-            canvas.toDataURL(
-                "image/png"
-            );
+            canvas.toDataURL("image/png");
 
 
         link.click();
 
 
-        showStatus(
-            "PNG downloaded."
-        );
+        showStatus("PNG downloaded.");
 
     }
 
     catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
-        showStatus(
-            "PNG export failed."
-        );
+        showStatus("PNG export failed.");
 
     }
 }
 
 
 /* =========================================================
-   PDF DOWNLOAD
+   PDF DOWNLOAD - LETTER SIZE
 ========================================================= */
 
 async function downloadPDF() {
 
     const orderSlip =
-        document.getElementById(
-            "orderSlip"
-        );
+        document.getElementById("orderSlip");
 
 
     try {
 
-        showStatus(
-            "Creating PDF..."
-        );
+        showStatus("Creating PDF...");
 
 
         const canvas =
-    await html2canvas(
-        orderSlip,
-        {
-            scale: 2,
+            await html2canvas(
+                orderSlip,
+                {
+                    scale: 2,
 
-            useCORS: true,
+                    useCORS: true,
 
-            backgroundColor:
-                "#ffffff",
+                    backgroundColor:
+                        "#ffffff",
 
-            onclone:
-                function(clonedDocument) {
+                    width: 816,
 
-                    prepareTotalForExport(
-                        clonedDocument
-                    );
+                    height: 1056,
 
+                    windowWidth: 816,
+
+                    windowHeight: 1056,
+
+                    onclone:
+                        function(clonedDocument) {
+
+                            const clonedSlip =
+                                clonedDocument.getElementById(
+                                    "orderSlip"
+                                );
+
+
+                            if (clonedSlip) {
+
+                                /*
+                                   LETTER SIZE
+                                   8.5 x 11 inches
+                                */
+
+                                clonedSlip.style.width =
+                                    "8.5in";
+
+                                clonedSlip.style.height =
+                                    "11in";
+
+                                clonedSlip.style.minHeight =
+                                    "11in";
+
+                                clonedSlip.style.maxHeight =
+                                    "11in";
+
+                                clonedSlip.style.overflow =
+                                    "hidden";
+
+                                clonedSlip.style.boxSizing =
+                                    "border-box";
+                            }
+
+
+                            /*
+                               Hide export-only items
+                            */
+
+                            prepareTotalForExport(
+                                clonedDocument
+                            );
+
+                        }
                 }
-        }
-    );
+            );
 
 
         const imageData =
-            canvas.toDataURL(
-                "image/png"
-            );
+            canvas.toDataURL("image/png");
 
 
         const {
@@ -1679,73 +1749,30 @@ async function downloadPDF() {
 
 
         const pdf =
-            new jsPDF(
-                {
-                    orientation:
-                        "portrait",
+            new jsPDF({
+                orientation:
+                    "portrait",
 
-                    unit:
-                        "in",
+                unit:
+                    "in",
 
-                    format:
-                        "letter"
-                }
-            );
+                format:
+                    "letter"
+            });
 
 
-        const pageWidth =
-            8.5;
-
-        const pageHeight =
-            11;
-
-
-        const imageRatio =
-            canvas.height /
-            canvas.width;
-
-
-        let imageWidth =
-            pageWidth;
-
-
-        let imageHeight =
-            imageWidth *
-            imageRatio;
-
-
-        if (
-            imageHeight >
-            pageHeight
-        ) {
-
-            imageHeight =
-                pageHeight;
-
-            imageWidth =
-                imageHeight /
-                imageRatio;
-        }
-
-
-        const x =
-            (
-                pageWidth -
-                imageWidth
-            ) / 2;
-
-
-        const y =
-            0;
-
+        /*
+           Put the image exactly on
+           one Letter-size page.
+        */
 
         pdf.addImage(
             imageData,
             "PNG",
-            x,
-            y,
-            imageWidth,
-            imageHeight
+            0,
+            0,
+            8.5,
+            11
         );
 
 
@@ -1756,21 +1783,15 @@ async function downloadPDF() {
         );
 
 
-        showStatus(
-            "PDF downloaded."
-        );
+        showStatus("PDF downloaded.");
 
     }
 
     catch (error) {
 
-        console.error(
-            error
-        );
+        console.error(error);
 
-        showStatus(
-            "PDF export failed."
-        );
+        showStatus("PDF export failed.");
 
     }
 }
