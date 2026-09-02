@@ -1579,15 +1579,11 @@ function downloadPDF() {
         "Opening Print Preview. Choose Save as PDF."
     );
 
-    setTimeout(
-        () => {
+    setTimeout(() => {
 
-            window.print();
+        window.print();
 
-        },
-        100
-    );
-
+    }, 100);
 }
 
 
@@ -1607,469 +1603,110 @@ function downloadPDF() {
 */
 async function downloadPNG() {
 
-    let exportArea = null;
-
     try {
 
-        showStatus(
-            "Creating PNG..."
-        );
+        showStatus("Creating PNG...");
 
+        const orderSlip =
+            document.getElementById("orderSlip");
 
-        const originalSlip =
-            document.getElementById(
-                "orderSlip"
-            );
-
-
-        if (!originalSlip) {
-
-            throw new Error(
-                "Order slip not found."
-            );
-
+        if (!orderSlip) {
+            throw new Error("Order slip not found.");
         }
 
+        /*
+         * Make a temporary copy so the actual
+         * order slip on screen is not changed.
+         */
+        const clone =
+            orderSlip.cloneNode(true);
+
+        clone.style.position = "absolute";
+        clone.style.left = "-100000px";
+        clone.style.top = "0";
+        clone.style.width = "8.5in";
+        clone.style.height = "auto";
+        clone.style.background = "#ffffff";
+        clone.style.boxSizing = "border-box";
+
+        document.body.appendChild(clone);
 
         /*
-           Create hidden export container.
-        */
-
-        exportArea =
-            document.createElement(
-                "div"
-            );
-
-
-        exportArea.id =
-            "blueline-export-area";
-
-
-        exportArea.style.position =
-            "fixed";
-
-
-        exportArea.style.left =
-            "-100000px";
-
-
-        exportArea.style.top =
-            "0";
-
-
-        exportArea.style.width =
-            "8.5in";
-
-
-        exportArea.style.background =
-            "#ffffff";
-
-
-        document.body.appendChild(
-            exportArea
-        );
-
+         * Remove things that should not appear
+         * in the downloaded PNG.
+         */
+        clone.querySelectorAll(
+            "button, .delete-item, #totalEditHint"
+        ).forEach(element => {
+            element.remove();
+        });
 
         /*
-           Clone the order slip.
-        */
-
-        const source =
-            originalSlip.cloneNode(
-                true
-            );
-
-
-        source.style.width =
-            "8.5in";
-
-
-        source.style.height =
-            "auto";
-
-
-        source.style.minHeight =
-            "0";
-
-
-        source.style.margin =
-            "0";
-
-
-        source.style.padding =
-            "0.42in";
-
-
-        source.style.boxSizing =
-            "border-box";
-
-
-        source.style.background =
-            "#ffffff";
-
-
-        source.style.boxShadow =
-            "none";
-
-
-        exportArea.appendChild(
-            source
-        );
-
-
-        /*
-           Remove controls from PNG.
-        */
-
-        source.querySelectorAll(
-            ".add-item-btn, .delete-item, button"
-        ).forEach(
-            element => {
-
-                element.style.display =
-                    "none";
-
-            }
-        );
-
-
-        /*
-           Remove total helper text.
-        */
-
-        const totalHint =
-            source.querySelector(
-                "#totalEditHint"
-            );
-
-
-        if (totalHint) {
-
-            totalHint.style.display =
-                "none";
-
-        }
-
-
-        /*
-           Hide empty input values
-           so placeholders don't appear.
-        */
-
-        source.querySelectorAll(
-            "input, textarea"
-        ).forEach(
-            element => {
-
-                if (
-                    String(
-                        element.value || ""
-                    ).trim() === ""
-                ) {
-
-                    element.style.setProperty(
-                        "color",
-                        "transparent",
-                        "important"
-                    );
-
-                }
-
-            }
-        );
-
-
-        /*
-           Hide empty discount placeholders.
-        */
-
-        source.querySelectorAll(
+         * Hide empty discount placeholders.
+         */
+        clone.querySelectorAll(
             ".discounts"
-        ).forEach(
-            element => {
+        ).forEach(element => {
 
-                if (
-                    String(
-                        element.value || ""
-                    ).trim() === ""
-                ) {
-
-                    element.placeholder =
-                        "";
-
-                }
-
+            if (!element.value.trim()) {
+                element.placeholder = "";
             }
+
+        });
+
+        /*
+         * Give the browser time to finish layout.
+         */
+        await new Promise(resolve =>
+            setTimeout(resolve, 200)
         );
 
+        /*
+         * Render the COMPLETE order slip.
+         * No cropping and no shrinking.
+         */
+        const canvas =
+            await html2canvas(
+                clone,
+                {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    width: clone.scrollWidth,
+                    height: clone.scrollHeight,
+                    windowWidth: clone.scrollWidth,
+                    windowHeight: clone.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0
+                }
+            );
 
         /*
-           Convert Total input into normal text
-           so html2canvas captures it correctly.
-        */
+         * Download PNG.
+         */
+        const link =
+            document.createElement("a");
 
-        const totalInput =
-            source.querySelector(
-                "#totalValue"
-            );
+        link.download =
+            `Order-Slip-${getFormattedOrderNumber(
+                currentOrderNumber
+            )}.png`;
 
+        link.href =
+            canvas.toDataURL("image/png");
 
-        if (totalInput) {
+        document.body.appendChild(link);
 
-            const totalBox =
-                document.createElement(
-                    "div"
-                );
+        link.click();
 
+        document.body.removeChild(link);
 
-            totalBox.textContent =
-                totalInput.value ||
-                "0.00";
+        clone.remove();
 
-
-            totalBox.style.width =
-                "100%";
-
-
-            totalBox.style.height =
-                totalInput.offsetHeight +
-                "px";
-
-
-            totalBox.style.boxSizing =
-                "border-box";
-
-
-            totalBox.style.display =
-                "flex";
-
-
-            totalBox.style.alignItems =
-                "center";
-
-
-            totalBox.style.justifyContent =
-                "flex-end";
-
-
-            totalBox.style.textAlign =
-                "right";
-
-
-            totalBox.style.padding =
-                "8px 12px";
-
-
-            totalBox.style.fontFamily =
-                "Arial, Helvetica, sans-serif";
-
-
-            totalBox.style.fontWeight =
-                "800";
-
-
-            totalBox.style.fontSize =
-                "inherit";
-
-
-            totalBox.style.lineHeight =
-                "1";
-
-
-            totalBox.style.whiteSpace =
-                "nowrap";
-
-
-            totalBox.style.overflow =
-                "visible";
-
-
-            totalBox.style.color =
-                "#111";
-
-
-            totalBox.style.background =
-                "#f8fbff";
-
-
-            totalBox.style.border =
-                "1px solid #aaa";
-
-
-            totalBox.style.borderRadius =
-                "0";
-
-
-            totalInput.parentNode.replaceChild(
-                totalBox,
-                totalInput
-            );
-
-        }
-
-
-        /*
-           Wait for browser layout.
-        */
-
-        await new Promise(
-            resolve =>
-                setTimeout(
-                    resolve,
-                    150
-                )
-        );
-
-
-        /*
-           Letter size in pixels at 96 DPI.
-        */
-
-        const PAGE_WIDTH =
-            Math.round(
-                8.5 * 96
-            );
-
-
-        const PAGE_HEIGHT =
-            Math.round(
-                11 * 96
-            );
-
-
-        /*
-           Determine the complete rendered height.
-        */
-
-        const fullHeight =
-            source.scrollHeight;
-
-
-        /*
-           Number of PNG pages.
-        */
-
-        const pageCount =
-            Math.max(
-                1,
-                Math.ceil(
-                    fullHeight /
-                    PAGE_HEIGHT
-                )
-            );
-
-
-        /*
-           Create one PNG for each Letter page.
-        */
-
-        for (
-            let pageIndex = 0;
-            pageIndex < pageCount;
-            pageIndex++
-        ) {
-
-            const canvas =
-                await html2canvas(
-                    source,
-                    {
-
-                        scale: 2,
-
-                        useCORS: true,
-
-                        backgroundColor:
-                            "#ffffff",
-
-                        width:
-                            PAGE_WIDTH,
-
-                        height:
-                            Math.min(
-                                PAGE_HEIGHT,
-                                fullHeight -
-                                (
-                                    pageIndex *
-                                    PAGE_HEIGHT
-                                )
-                            ),
-
-                        windowWidth:
-                            PAGE_WIDTH,
-
-                        windowHeight:
-                            PAGE_HEIGHT,
-
-                        scrollX: 0,
-
-                        scrollY:
-                            pageIndex *
-                            PAGE_HEIGHT
-
-                    }
-                );
-
-
-            /*
-               Download this page.
-            */
-
-            const link =
-                document.createElement(
-                    "a"
-                );
-
-
-            link.download =
-                `Order-Slip-${getFormattedOrderNumber(
-                    currentOrderNumber
-                )}-Page-${pageIndex + 1}.png`;
-
-
-            link.href =
-                canvas.toDataURL(
-                    "image/png"
-                );
-
-
-            document.body.appendChild(
-                link
-            );
-
-
-            link.click();
-
-
-            document.body.removeChild(
-                link
-            );
-
-
-            /*
-               Small delay between downloads.
-            */
-
-            await new Promise(
-                resolve =>
-                    setTimeout(
-                        resolve,
-                        500
-                    )
-            );
-
-        }
-
-
-        showStatus(
-            `${pageCount} PNG page${
-                pageCount === 1
-                    ? ""
-                    : "s"
-            } downloaded.`
-        );
-
+        showStatus("PNG downloaded.");
 
     }
+
     catch (error) {
 
         console.error(
@@ -2077,24 +1714,10 @@ async function downloadPNG() {
             error
         );
 
-
         showStatus(
             "PNG export failed."
         );
-
     }
-
-
-    finally {
-
-        if (exportArea) {
-
-            exportArea.remove();
-
-        }
-
-    }
-
 }
 
 
