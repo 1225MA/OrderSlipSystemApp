@@ -1542,7 +1542,7 @@ function prepareTotalForExport(clonedDocument) {
 
 
 /* =========================================================
-   PNG DOWNLOAD - LETTER SIZE
+   PNG DOWNLOAD - MULTIPLE LETTER-SIZE PAGES
 ========================================================= */
 
 async function downloadPNG() {
@@ -1553,7 +1553,9 @@ async function downloadPNG() {
 
     try {
 
-        showStatus("Creating PNG...");
+        showStatus(
+            "Creating PNG..."
+        );
 
 
         const canvas =
@@ -1567,16 +1569,18 @@ async function downloadPNG() {
                     backgroundColor:
                         "#ffffff",
 
-                    width: 816,
-
-                    height: 1056,
-
-                    windowWidth: 816,
-
-                    windowHeight: 1056,
-
                     onclone:
                         function(clonedDocument) {
+
+                            /*
+                               Hide things that should not
+                               appear in PNG.
+                            */
+
+                            prepareTotalForExport(
+                                clonedDocument
+                            );
+
 
                             const clonedSlip =
                                 clonedDocument.getElementById(
@@ -1586,77 +1590,201 @@ async function downloadPNG() {
 
                             if (clonedSlip) {
 
-                                /*
-                                   LETTER SIZE
-                                   8.5 x 11 inches
-                                */
-
-                                clonedSlip.style.width =
-                                    "8.5in";
-
                                 clonedSlip.style.height =
-                                    "11in";
-
-                                clonedSlip.style.minHeight =
-                                    "11in";
+                                    "auto";
 
                                 clonedSlip.style.maxHeight =
-                                    "11in";
+                                    "none";
 
                                 clonedSlip.style.overflow =
-                                    "hidden";
-
-                                clonedSlip.style.boxSizing =
-                                    "border-box";
+                                    "visible";
                             }
-
-
-                            /*
-                               Hide export-only items
-                            */
-
-                            prepareTotalForExport(
-                                clonedDocument
-                            );
-
                         }
                 }
             );
 
 
-        const link =
-            document.createElement("a");
+        /*
+           Letter size at 96 DPI:
+           
+           Width  = 816 px
+           Height = 1056 px
+        */
+
+        const LETTER_WIDTH =
+            816;
+
+        const LETTER_HEIGHT =
+            1056;
 
 
-        link.download =
-            `Order-Slip-${getFormattedOrderNumber(
-                currentOrderNumber
-            )}.png`;
+        /*
+           Determine how many Letter-size
+           pages are needed.
+        */
+
+        const pageCount =
+            Math.ceil(
+                canvas.height /
+                LETTER_HEIGHT
+            );
 
 
-        link.href =
-            canvas.toDataURL("image/png");
+        for (
+            let page = 0;
+            page < pageCount;
+            page++
+        ) {
+
+            const startY =
+                page *
+                LETTER_HEIGHT;
 
 
-        link.click();
+            const remainingHeight =
+                canvas.height -
+                startY;
 
 
-        showStatus("PNG downloaded.");
+            const pageHeight =
+                Math.min(
+                    LETTER_HEIGHT,
+                    remainingHeight
+                );
+
+
+            /*
+               Create a Letter-size page.
+            */
+
+            const pageCanvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            pageCanvas.width =
+                LETTER_WIDTH;
+
+
+            pageCanvas.height =
+                LETTER_HEIGHT;
+
+
+            const ctx =
+                pageCanvas.getContext(
+                    "2d"
+                );
+
+
+            /*
+               White background.
+            */
+
+            ctx.fillStyle =
+                "#ffffff";
+
+
+            ctx.fillRect(
+                0,
+                0,
+                LETTER_WIDTH,
+                LETTER_HEIGHT
+            );
+
+
+            /*
+               Copy this section of the
+               order slip onto the page.
+            */
+
+            ctx.drawImage(
+                canvas,
+
+                0,
+                startY,
+
+                canvas.width,
+                pageHeight,
+
+                0,
+                0,
+
+                LETTER_WIDTH,
+                pageHeight
+            );
+
+
+            /*
+               Download each page separately.
+            */
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+
+            const pageNumber =
+                page + 1;
+
+
+            link.download =
+                `Order-Slip-${getFormattedOrderNumber(
+                    currentOrderNumber
+                )}-Page-${pageNumber}.png`;
+
+
+            link.href =
+                pageCanvas.toDataURL(
+                    "image/png"
+                );
+
+
+            link.click();
+
+
+            /*
+               Small delay so the browser
+               can process multiple downloads.
+            */
+
+            await new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        300
+                    )
+            );
+        }
+
+
+        showStatus(
+            `${pageCount} PNG page${
+                pageCount === 1
+                    ? ""
+                    : "s"
+            } downloaded.`
+        );
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
-        showStatus("PNG export failed.");
 
+        showStatus(
+            "PNG export failed."
+        );
     }
 }
 
 
 /* =========================================================
-   PDF DOWNLOAD - LETTER SIZE
+   PDF DOWNLOAD - MULTIPLE LETTER-SIZE PAGES
 ========================================================= */
 
 async function downloadPDF() {
@@ -1667,7 +1795,9 @@ async function downloadPDF() {
 
     try {
 
-        showStatus("Creating PDF...");
+        showStatus(
+            "Creating PDF..."
+        );
 
 
         const canvas =
@@ -1681,16 +1811,18 @@ async function downloadPDF() {
                     backgroundColor:
                         "#ffffff",
 
-                    width: 816,
-
-                    height: 1056,
-
-                    windowWidth: 816,
-
-                    windowHeight: 1056,
-
                     onclone:
                         function(clonedDocument) {
+
+                            /*
+                               Hide things that should not
+                               appear in PDF.
+                            */
+
+                            prepareTotalForExport(
+                                clonedDocument
+                            );
+
 
                             const clonedSlip =
                                 clonedDocument.getElementById(
@@ -1700,46 +1832,49 @@ async function downloadPDF() {
 
                             if (clonedSlip) {
 
-                                /*
-                                   LETTER SIZE
-                                   8.5 x 11 inches
-                                */
-
-                                clonedSlip.style.width =
-                                    "8.5in";
-
                                 clonedSlip.style.height =
-                                    "11in";
-
-                                clonedSlip.style.minHeight =
-                                    "11in";
+                                    "auto";
 
                                 clonedSlip.style.maxHeight =
-                                    "11in";
+                                    "none";
 
                                 clonedSlip.style.overflow =
-                                    "hidden";
-
-                                clonedSlip.style.boxSizing =
-                                    "border-box";
+                                    "visible";
                             }
-
-
-                            /*
-                               Hide export-only items
-                            */
-
-                            prepareTotalForExport(
-                                clonedDocument
-                            );
-
                         }
                 }
             );
 
 
-        const imageData =
-            canvas.toDataURL("image/png");
+        /*
+           Letter size in PDF.
+        */
+
+        const PAGE_WIDTH =
+            8.5;
+
+        const PAGE_HEIGHT =
+            11;
+
+
+        /*
+           96 DPI equivalent.
+        */
+
+        const LETTER_HEIGHT_PX =
+            1056;
+
+
+        /*
+           Calculate how many pages
+           are required.
+        */
+
+        const pageCount =
+            Math.ceil(
+                canvas.height /
+                LETTER_HEIGHT_PX
+            );
 
 
         const {
@@ -1749,31 +1884,139 @@ async function downloadPDF() {
 
 
         const pdf =
-            new jsPDF({
-                orientation:
-                    "portrait",
+            new jsPDF(
+                {
+                    orientation:
+                        "portrait",
 
-                unit:
-                    "in",
+                    unit:
+                        "in",
 
-                format:
-                    "letter"
-            });
+                    format:
+                        "letter"
+                }
+            );
 
 
-        /*
-           Put the image exactly on
-           one Letter-size page.
-        */
+        for (
+            let page = 0;
+            page < pageCount;
+            page++
+        ) {
 
-        pdf.addImage(
-            imageData,
-            "PNG",
-            0,
-            0,
-            8.5,
-            11
-        );
+            if (page > 0) {
+
+                /*
+                   Add another Letter page.
+                */
+
+                pdf.addPage(
+                    "letter",
+                    "portrait"
+                );
+            }
+
+
+            const startY =
+                page *
+                LETTER_HEIGHT_PX;
+
+
+            const remainingHeight =
+                canvas.height -
+                startY;
+
+
+            const pageHeight =
+                Math.min(
+                    LETTER_HEIGHT_PX,
+                    remainingHeight
+                );
+
+
+            /*
+               Create a temporary canvas
+               for this page.
+            */
+
+            const pageCanvas =
+                document.createElement(
+                    "canvas"
+                );
+
+
+            pageCanvas.width =
+                canvas.width;
+
+
+            pageCanvas.height =
+                LETTER_HEIGHT_PX;
+
+
+            const ctx =
+                pageCanvas.getContext(
+                    "2d"
+                );
+
+
+            /*
+               White background.
+            */
+
+            ctx.fillStyle =
+                "#ffffff";
+
+
+            ctx.fillRect(
+                0,
+                0,
+                pageCanvas.width,
+                pageCanvas.height
+            );
+
+
+            /*
+               Copy the correct section
+               of the order slip.
+            */
+
+            ctx.drawImage(
+                canvas,
+
+                0,
+                startY,
+
+                canvas.width,
+                pageHeight,
+
+                0,
+                0,
+
+                canvas.width,
+                pageHeight
+            );
+
+
+            const imageData =
+                pageCanvas.toDataURL(
+                    "image/png"
+                );
+
+
+            /*
+               Keep the original size.
+               Do not shrink the content.
+            */
+
+            pdf.addImage(
+                imageData,
+                "PNG",
+                0,
+                0,
+                PAGE_WIDTH,
+                PAGE_HEIGHT
+            );
+        }
 
 
         pdf.save(
@@ -1783,16 +2026,26 @@ async function downloadPDF() {
         );
 
 
-        showStatus("PDF downloaded.");
+        showStatus(
+            `${pageCount} PDF page${
+                pageCount === 1
+                    ? ""
+                    : "s"
+            } downloaded.`
+        );
 
     }
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            error
+        );
 
-        showStatus("PDF export failed.");
 
+        showStatus(
+            "PDF export failed."
+        );
     }
 }
 
