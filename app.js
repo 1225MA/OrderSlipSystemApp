@@ -375,14 +375,13 @@ function renderItems() {
 
                 <td>
 
-                    <input
-                        type="text"
+                  <textarea
                         class="description"
                         placeholder="Item description"
-                        value="${escapeHTML(item.description)}"
                         data-index="${index}"
                         data-field="description"
-                    >
+                        rows="1"
+                    >${escapeHTML(item.description)}</textarea>
 
                 </td>
 

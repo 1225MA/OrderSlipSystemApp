@@ -578,9 +578,21 @@ body {
 ========================================================= */
 
 .description {
+    width: 100%;
+    box-sizing: border-box;
 
-    padding-left:
-        5px !important;
+    min-height: 38px;
+
+    resize: none;
+
+    overflow: hidden;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+
+    line-height: 1.4;
+
+    padding: 8px;
 }
 
 
