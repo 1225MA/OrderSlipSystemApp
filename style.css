@@ -583,6 +583,8 @@ body {
 
     min-height: 38px;
 
+    padding: 8px;
+
     resize: none;
 
     overflow: hidden;
@@ -592,7 +594,12 @@ body {
 
     line-height: 1.4;
 
-    padding: 8px;
+    /* Keep the text centered vertically */
+    display: flex;
+    align-items: center;
+
+    /* Keep description text left aligned */
+    text-align: left;
 }
 
 
