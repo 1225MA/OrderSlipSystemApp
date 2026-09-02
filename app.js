@@ -1542,14 +1542,856 @@ function prepareTotalForExport(clonedDocument) {
 
 
 /* =========================================================
-   PNG DOWNLOAD - MULTIPLE LETTER-SIZE PAGES
+   CREATE PRINT-STYLE EXPORT PAGES
+   Makes the download behave like printing:
+   - Letter size
+   - No shrinking
+   - No cropping
+   - Table header repeats on new pages
+   - Header appears only on page 1
+   - Remarks / Total / Received By appear on final page
+========================================================= */
+
+async function createPrintStyleExportPages() {
+
+    const originalSlip =
+        document.getElementById("orderSlip");
+
+    if (!originalSlip) {
+        throw new Error("Order slip not found.");
+    }
+
+
+    /*
+       Create hidden export area.
+    */
+
+    const exportArea =
+        document.createElement("div");
+
+    exportArea.id =
+        "blueline-export-area";
+
+    exportArea.style.position =
+        "fixed";
+
+    exportArea.style.left =
+        "-100000px";
+
+    exportArea.style.top =
+        "0";
+
+    exportArea.style.width =
+        "8.5in";
+
+    exportArea.style.background =
+        "#ffffff";
+
+    exportArea.style.zIndex =
+        "-9999";
+
+    document.body.appendChild(
+        exportArea
+    );
+
+
+    /*
+       Clone the complete order slip.
+    */
+
+    const source =
+        originalSlip.cloneNode(true);
+
+
+    source.style.width =
+        "8.5in";
+
+    source.style.minHeight =
+        "0";
+
+    source.style.height =
+        "auto";
+
+    source.style.margin =
+        "0";
+
+    source.style.padding =
+        "0.42in";
+
+    source.style.boxShadow =
+        "none";
+
+    source.style.background =
+        "#ffffff";
+
+
+    /*
+       Hide things that should not appear
+       in downloaded files.
+    */
+
+    source.querySelectorAll(
+        ".add-item-btn, .delete-item"
+    ).forEach(element => {
+
+        element.style.display =
+            "none";
+    });
+
+
+    /*
+       Hide total helper text.
+    */
+
+    const sourceHint =
+        source.querySelector(
+            "#totalEditHint"
+        );
+
+    if (sourceHint) {
+
+        sourceHint.style.display =
+            "none";
+    }
+
+
+    /*
+       Hide empty placeholders.
+    */
+
+    source.querySelectorAll(
+        "input, textarea"
+    ).forEach(element => {
+
+        if (
+            String(
+                element.value || ""
+            ).trim() === ""
+        ) {
+
+            element.style.setProperty(
+                "color",
+                "transparent",
+                "important"
+            );
+
+            element.style.setProperty(
+                "opacity",
+                "1",
+                "important"
+            );
+        }
+    });
+
+
+    /*
+       Hide empty discount placeholders.
+    */
+
+    source.querySelectorAll(
+        ".discounts"
+    ).forEach(element => {
+
+        if (
+            String(
+                element.value || ""
+            ).trim() === ""
+        ) {
+
+            element.setAttribute(
+                "placeholder",
+                ""
+            );
+        }
+    });
+
+
+    /*
+       Apply the existing total export
+       formatting if available.
+    */
+
+    if (
+        typeof prepareTotalForExport ===
+        "function"
+    ) {
+
+        prepareTotalForExport(
+            {
+                getElementById: function(id) {
+
+                    return source.querySelector(
+                        "#" + id
+                    );
+                },
+
+                querySelectorAll: function(selector) {
+
+                    return source.querySelectorAll(
+                        selector
+                    );
+                },
+
+                createElement: function(tag) {
+
+                    return document.createElement(
+                        tag
+                    );
+                }
+            }
+        );
+    }
+
+
+    /*
+       Get the important sections.
+    */
+
+    const header =
+        source.querySelector(
+            ".order-header"
+        );
+
+    const information =
+        source.querySelector(
+            ".order-information"
+        );
+
+    const itemsSection =
+        source.querySelector(
+            ".items-section"
+        );
+
+    const table =
+        source.querySelector(
+            ".items-table"
+        );
+
+    const tableHead =
+        table
+            ? table.querySelector("thead")
+            : null;
+
+    const tableBody =
+        table
+            ? table.querySelector("tbody")
+            : null;
+
+    const remarksSection =
+        source.querySelector(
+            ".remarks-section"
+        );
+
+    const totalSection =
+        source.querySelector(
+            ".total-section"
+        );
+
+    const signatureSection =
+        source.querySelector(
+            ".signature-section"
+        );
+
+    const footer =
+        source.querySelector(
+            ".order-footer"
+        );
+
+
+    if (
+        !table ||
+        !tableHead ||
+        !tableBody
+    ) {
+
+        exportArea.remove();
+
+        throw new Error(
+            "Order table not found."
+        );
+    }
+
+
+    /*
+       Save all item rows.
+    */
+
+    const rows =
+        Array.from(
+            tableBody.querySelectorAll(
+                "tr"
+            )
+        );
+
+
+    /*
+       Page size.
+
+       8.5in × 11in
+    */
+
+    const PAGE_WIDTH =
+        "8.5in";
+
+    const PAGE_HEIGHT =
+        "11in";
+
+
+    /*
+       Create one export page.
+    */
+
+    function createPage(
+        includeHeader
+    ) {
+
+        const page =
+            document.createElement(
+                "div"
+            );
+
+
+        page.className =
+            "blueline-export-page";
+
+
+        page.style.width =
+            PAGE_WIDTH;
+
+        page.style.height =
+            PAGE_HEIGHT;
+
+        page.style.boxSizing =
+            "border-box";
+
+        page.style.padding =
+            "0.42in";
+
+        page.style.margin =
+            "0";
+
+        page.style.background =
+            "#ffffff";
+
+        page.style.overflow =
+            "hidden";
+
+        page.style.fontFamily =
+            "Arial, Helvetica, sans-serif";
+
+
+        /*
+           Page 1 gets the order header
+           and customer information.
+        */
+
+        if (includeHeader) {
+
+            if (header) {
+
+                page.appendChild(
+                    header.cloneNode(true)
+                );
+            }
+
+
+            if (information) {
+
+                page.appendChild(
+                    information.cloneNode(true)
+                );
+            }
+        }
+
+
+        /*
+           Every page gets the table,
+           including its header.
+        */
+
+        const pageItemsSection =
+            document.createElement(
+                "div"
+            );
+
+
+        pageItemsSection.className =
+            "items-section";
+
+
+        pageItemsSection.style.marginTop =
+            "25px";
+
+
+        const pageTable =
+            table.cloneNode(false);
+
+
+        const pageHead =
+            tableHead.cloneNode(true);
+
+
+        const pageBody =
+            document.createElement(
+                "tbody"
+            );
+
+
+        pageBody.id =
+            "itemsBody";
+
+
+        pageTable.appendChild(
+            pageHead
+        );
+
+        pageTable.appendChild(
+            pageBody
+        );
+
+
+        pageItemsSection.appendChild(
+            pageTable
+        );
+
+
+        page.appendChild(
+            pageItemsSection
+        );
+
+
+        return {
+            page,
+            tableBody: pageBody,
+            itemsSection: pageItemsSection
+        };
+    }
+
+
+    /*
+       Add a row to a page.
+    */
+
+    function addRow(
+        pageData,
+        row
+    ) {
+
+        pageData.tableBody.appendChild(
+            row.cloneNode(true)
+        );
+    }
+
+
+    /*
+       Determine the usable page height.
+    */
+
+    const pageContentHeight =
+        11 * 96;
+
+
+    /*
+       Keep all pages here.
+    */
+
+    const pages = [];
+
+
+    /*
+       =====================================================
+       BUILD PAGE 1
+       =====================================================
+    */
+
+    let currentPage =
+        createPage(true);
+
+    exportArea.appendChild(
+        currentPage.page
+    );
+
+
+    /*
+       Add rows one by one.
+
+       If a row no longer fits,
+       move it to the next page.
+    */
+
+    for (
+        let i = 0;
+        i < rows.length;
+        i++
+    ) {
+
+        const row =
+            rows[i];
+
+
+        addRow(
+            currentPage,
+            row
+        );
+
+
+        /*
+           Allow the browser to calculate
+           the actual rendered height.
+        */
+
+        const pageHeight =
+            currentPage.page
+                .scrollHeight;
+
+
+        if (
+            pageHeight >
+            pageContentHeight
+        ) {
+
+            /*
+               Remove the row that caused
+               the page to overflow.
+            */
+
+            currentPage.tableBody
+                .removeChild(
+                    currentPage
+                        .tableBody
+                        .lastElementChild
+                );
+
+
+            /*
+               Save the completed page.
+            */
+
+            pages.push(
+                currentPage.page
+            );
+
+
+            /*
+               Create the next page.
+
+               No order header this time.
+               Only the table header repeats.
+            */
+
+            currentPage =
+                createPage(false);
+
+
+            exportArea.appendChild(
+                currentPage.page
+            );
+
+
+            addRow(
+                currentPage,
+                row
+            );
+        }
+    }
+
+
+    /*
+       Save the last item page.
+    */
+
+    pages.push(
+        currentPage.page
+    );
+
+
+    /*
+       =====================================================
+       ADD REMARKS / TOTAL / RECEIVED BY / FOOTER
+       TO THE LAST PAGE
+       =====================================================
+    */
+
+    let lastPage =
+        pages[pages.length - 1];
+
+
+    /*
+       Create a temporary bottom section.
+    */
+
+    const bottomSection =
+        document.createElement(
+            "div"
+        );
+
+
+    if (remarksSection) {
+
+        bottomSection.appendChild(
+            remarksSection.cloneNode(true)
+        );
+    }
+
+
+    if (totalSection) {
+
+        bottomSection.appendChild(
+            totalSection.cloneNode(true)
+        );
+    }
+
+
+    if (signatureSection) {
+
+        bottomSection.appendChild(
+            signatureSection.cloneNode(true)
+        );
+    }
+
+
+    if (footer) {
+
+        bottomSection.appendChild(
+            footer.cloneNode(true)
+        );
+    }
+
+
+    /*
+       Add bottom section to last page.
+    */
+
+    lastPage.appendChild(
+        bottomSection
+    );
+
+
+    /*
+       If the bottom section doesn't fit,
+       move rows to a new page until it does.
+    */
+
+    while (
+        lastPage.scrollHeight >
+        pageContentHeight &&
+        lastPage.querySelector(
+            "tbody"
+        ).children.length > 0
+    ) {
+
+        const lastTableBody =
+            lastPage.querySelector(
+                "tbody"
+            );
+
+
+        const lastRow =
+            lastTableBody.lastElementChild;
+
+
+        /*
+           Remove last row from the
+           current page.
+        */
+
+        lastTableBody.removeChild(
+            lastRow
+        );
+
+
+        /*
+           If this is the first page
+           that now has no rows, the
+           row still needs to move.
+        */
+
+        if (
+            lastTableBody.children.length ===
+            0
+        ) {
+
+            /*
+               Create a new page.
+            */
+
+            const newPage =
+                createPage(false);
+
+
+            exportArea.appendChild(
+                newPage.page
+            );
+
+
+            newPage.tableBody.appendChild(
+                lastRow
+            );
+
+
+            /*
+               Move the bottom section
+               to the new page.
+            */
+
+            newPage.page.appendChild(
+                bottomSection
+            );
+
+
+            /*
+               Replace last page.
+            */
+
+            const oldIndex =
+                pages.indexOf(
+                    lastPage
+                );
+
+
+            pages.splice(
+                oldIndex,
+                1,
+                newPage.page
+            );
+
+
+            lastPage =
+                newPage.page;
+
+            break;
+        }
+
+
+        /*
+           Create a new final page
+           for the removed rows.
+        */
+
+        let newPage =
+            createPage(false);
+
+
+        exportArea.appendChild(
+            newPage.page
+        );
+
+
+        newPage.tableBody.insertBefore(
+            lastRow,
+            newPage.tableBody.firstChild
+        );
+
+
+        /*
+           Move bottom section to
+           the new page.
+        */
+
+        newPage.page.appendChild(
+            bottomSection
+        );
+
+
+        /*
+           Replace old final page.
+        */
+
+        const oldIndex =
+            pages.indexOf(
+                lastPage
+            );
+
+
+        pages.splice(
+            oldIndex,
+            1,
+            lastPage,
+            newPage.page
+        );
+
+
+        lastPage =
+            newPage.page;
+    }
+
+
+    /*
+       Re-apply export cleanup to every
+       page because these are new clones.
+    */
+
+    pages.forEach(page => {
+
+        page.querySelectorAll(
+            ".add-item-btn, .delete-item"
+        ).forEach(element => {
+
+            element.style.display =
+                "none";
+        });
+
+
+        const hint =
+            page.querySelector(
+                "#totalEditHint"
+            );
+
+
+        if (hint) {
+
+            hint.style.display =
+                "none";
+        }
+
+
+        page.querySelectorAll(
+            "input, textarea"
+        ).forEach(element => {
+
+            if (
+                String(
+                    element.value || ""
+                ).trim() === ""
+            ) {
+
+                element.style.setProperty(
+                    "color",
+                    "transparent",
+                    "important"
+                );
+            }
+        });
+    });
+
+
+    /*
+       Give the browser a moment to finish
+       layout calculations.
+    */
+
+    await new Promise(
+        resolve =>
+            setTimeout(
+                resolve,
+                100
+            )
+    );
+
+
+    return {
+        pages,
+        exportArea
+    };
+}
+
+
+/* =========================================================
+   DOWNLOAD PNG
+   ONE PNG FILE PER LETTER PAGE
 ========================================================= */
 
 async function downloadPNG() {
-
-    const orderSlip =
-        document.getElementById("orderSlip");
-
 
     try {
 
@@ -1558,166 +2400,48 @@ async function downloadPNG() {
         );
 
 
-        const canvas =
-            await html2canvas(
-                orderSlip,
-                {
-                    scale: 2,
-
-                    useCORS: true,
-
-                    backgroundColor:
-                        "#ffffff",
-
-                    onclone:
-                        function(clonedDocument) {
-
-                            /*
-                               Hide things that should not
-                               appear in PNG.
-                            */
-
-                            prepareTotalForExport(
-                                clonedDocument
-                            );
+        const result =
+            await createPrintStyleExportPages();
 
 
-                            const clonedSlip =
-                                clonedDocument.getElementById(
-                                    "orderSlip"
-                                );
-
-
-                            if (clonedSlip) {
-
-                                clonedSlip.style.height =
-                                    "auto";
-
-                                clonedSlip.style.maxHeight =
-                                    "none";
-
-                                clonedSlip.style.overflow =
-                                    "visible";
-                            }
-                        }
-                }
-            );
+        const pages =
+            result.pages;
 
 
         /*
-           Letter size at 96 DPI:
-           
-           Width  = 816 px
-           Height = 1056 px
+           Convert each actual print-style
+           page into a PNG.
         */
-
-        const LETTER_WIDTH =
-            816;
-
-        const LETTER_HEIGHT =
-            1056;
-
-
-        /*
-           Determine how many Letter-size
-           pages are needed.
-        */
-
-        const pageCount =
-            Math.ceil(
-                canvas.height /
-                LETTER_HEIGHT
-            );
-
 
         for (
-            let page = 0;
-            page < pageCount;
-            page++
+            let i = 0;
+            i < pages.length;
+            i++
         ) {
 
-            const startY =
-                page *
-                LETTER_HEIGHT;
+            const page =
+                pages[i];
 
 
-            const remainingHeight =
-                canvas.height -
-                startY;
+            const canvas =
+                await html2canvas(
+                    page,
+                    {
+                        scale: 2,
 
+                        useCORS: true,
 
-            const pageHeight =
-                Math.min(
-                    LETTER_HEIGHT,
-                    remainingHeight
+                        backgroundColor:
+                            "#ffffff",
+
+                        width:
+                            page.offsetWidth,
+
+                        height:
+                            page.offsetHeight
+                    }
                 );
 
-
-            /*
-               Create a Letter-size page.
-            */
-
-            const pageCanvas =
-                document.createElement(
-                    "canvas"
-                );
-
-
-            pageCanvas.width =
-                LETTER_WIDTH;
-
-
-            pageCanvas.height =
-                LETTER_HEIGHT;
-
-
-            const ctx =
-                pageCanvas.getContext(
-                    "2d"
-                );
-
-
-            /*
-               White background.
-            */
-
-            ctx.fillStyle =
-                "#ffffff";
-
-
-            ctx.fillRect(
-                0,
-                0,
-                LETTER_WIDTH,
-                LETTER_HEIGHT
-            );
-
-
-            /*
-               Copy this section of the
-               order slip onto the page.
-            */
-
-            ctx.drawImage(
-                canvas,
-
-                0,
-                startY,
-
-                canvas.width,
-                pageHeight,
-
-                0,
-                0,
-
-                LETTER_WIDTH,
-                pageHeight
-            );
-
-
-            /*
-               Download each page separately.
-            */
 
             const link =
                 document.createElement(
@@ -1725,43 +2449,52 @@ async function downloadPNG() {
                 );
 
 
-            const pageNumber =
-                page + 1;
-
-
             link.download =
                 `Order-Slip-${getFormattedOrderNumber(
                     currentOrderNumber
-                )}-Page-${pageNumber}.png`;
+                )}-Page-${i + 1}.png`;
 
 
             link.href =
-                pageCanvas.toDataURL(
+                canvas.toDataURL(
                     "image/png"
                 );
+
+
+            document.body.appendChild(
+                link
+            );
 
 
             link.click();
 
 
+            document.body.removeChild(
+                link
+            );
+
+
             /*
-               Small delay so the browser
-               can process multiple downloads.
+               Give the browser time between
+               multiple PNG downloads.
             */
 
             await new Promise(
                 resolve =>
                     setTimeout(
                         resolve,
-                        300
+                        400
                     )
             );
         }
 
 
+        result.exportArea.remove();
+
+
         showStatus(
-            `${pageCount} PNG page${
-                pageCount === 1
+            `${pages.length} PNG page${
+                pages.length === 1
                     ? ""
                     : "s"
             } downloaded.`
@@ -1772,8 +2505,20 @@ async function downloadPNG() {
     catch (error) {
 
         console.error(
+            "PNG export error:",
             error
         );
+
+
+        const exportArea =
+            document.getElementById(
+                "blueline-export-area"
+            );
+
+
+        if (exportArea) {
+            exportArea.remove();
+        }
 
 
         showStatus(
@@ -1784,14 +2529,11 @@ async function downloadPNG() {
 
 
 /* =========================================================
-   PDF DOWNLOAD - MULTIPLE LETTER-SIZE PAGES
+   DOWNLOAD PDF
+   MULTIPLE LETTER-SIZE PAGES
 ========================================================= */
 
 async function downloadPDF() {
-
-    const orderSlip =
-        document.getElementById("orderSlip");
-
 
     try {
 
@@ -1800,81 +2542,12 @@ async function downloadPDF() {
         );
 
 
-        const canvas =
-            await html2canvas(
-                orderSlip,
-                {
-                    scale: 2,
-
-                    useCORS: true,
-
-                    backgroundColor:
-                        "#ffffff",
-
-                    onclone:
-                        function(clonedDocument) {
-
-                            /*
-                               Hide things that should not
-                               appear in PDF.
-                            */
-
-                            prepareTotalForExport(
-                                clonedDocument
-                            );
+        const result =
+            await createPrintStyleExportPages();
 
 
-                            const clonedSlip =
-                                clonedDocument.getElementById(
-                                    "orderSlip"
-                                );
-
-
-                            if (clonedSlip) {
-
-                                clonedSlip.style.height =
-                                    "auto";
-
-                                clonedSlip.style.maxHeight =
-                                    "none";
-
-                                clonedSlip.style.overflow =
-                                    "visible";
-                            }
-                        }
-                }
-            );
-
-
-        /*
-           Letter size in PDF.
-        */
-
-        const PAGE_WIDTH =
-            8.5;
-
-        const PAGE_HEIGHT =
-            11;
-
-
-        /*
-           96 DPI equivalent.
-        */
-
-        const LETTER_HEIGHT_PX =
-            1056;
-
-
-        /*
-           Calculate how many pages
-           are required.
-        */
-
-        const pageCount =
-            Math.ceil(
-                canvas.height /
-                LETTER_HEIGHT_PX
-            );
+        const pages =
+            result.pages;
 
 
         const {
@@ -1882,6 +2555,10 @@ async function downloadPDF() {
         } =
             window.jspdf;
 
+
+        /*
+           Create Letter-size PDF.
+        */
 
         const pdf =
             new jsPDF(
@@ -1893,22 +2570,26 @@ async function downloadPDF() {
                         "in",
 
                     format:
-                        "letter"
+                        "letter",
+
+                    compress:
+                        true
                 }
             );
 
 
         for (
-            let page = 0;
-            page < pageCount;
-            page++
+            let i = 0;
+            i < pages.length;
+            i++
         ) {
 
-            if (page > 0) {
+            /*
+               Every page after the first
+               gets a new Letter page.
+            */
 
-                /*
-                   Add another Letter page.
-                */
+            if (i > 0) {
 
                 pdf.addPage(
                     "letter",
@@ -1917,95 +2598,46 @@ async function downloadPDF() {
             }
 
 
-            const startY =
-                page *
-                LETTER_HEIGHT_PX;
-
-
-            const remainingHeight =
-                canvas.height -
-                startY;
-
-
-            const pageHeight =
-                Math.min(
-                    LETTER_HEIGHT_PX,
-                    remainingHeight
-                );
+            const page =
+                pages[i];
 
 
             /*
-               Create a temporary canvas
-               for this page.
+               Render the actual print page.
             */
 
-            const pageCanvas =
-                document.createElement(
-                    "canvas"
+            const canvas =
+                await html2canvas(
+                    page,
+                    {
+                        scale: 2,
+
+                        useCORS: true,
+
+                        backgroundColor:
+                            "#ffffff",
+
+                        width:
+                            page.offsetWidth,
+
+                        height:
+                            page.offsetHeight
+                    }
                 );
-
-
-            pageCanvas.width =
-                canvas.width;
-
-
-            pageCanvas.height =
-                LETTER_HEIGHT_PX;
-
-
-            const ctx =
-                pageCanvas.getContext(
-                    "2d"
-                );
-
-
-            /*
-               White background.
-            */
-
-            ctx.fillStyle =
-                "#ffffff";
-
-
-            ctx.fillRect(
-                0,
-                0,
-                pageCanvas.width,
-                pageCanvas.height
-            );
-
-
-            /*
-               Copy the correct section
-               of the order slip.
-            */
-
-            ctx.drawImage(
-                canvas,
-
-                0,
-                startY,
-
-                canvas.width,
-                pageHeight,
-
-                0,
-                0,
-
-                canvas.width,
-                pageHeight
-            );
 
 
             const imageData =
-                pageCanvas.toDataURL(
+                canvas.toDataURL(
                     "image/png"
                 );
 
 
             /*
-               Keep the original size.
-               Do not shrink the content.
+               Put the page at exactly
+               8.5 × 11 inches.
+
+               No shrinking.
+               No cropping.
             */
 
             pdf.addImage(
@@ -2013,11 +2645,16 @@ async function downloadPDF() {
                 "PNG",
                 0,
                 0,
-                PAGE_WIDTH,
-                PAGE_HEIGHT
+                8.5,
+                11
             );
         }
 
+
+        /*
+           Save one PDF containing
+           every Letter page.
+        */
 
         pdf.save(
             `Order-Slip-${getFormattedOrderNumber(
@@ -2026,9 +2663,12 @@ async function downloadPDF() {
         );
 
 
+        result.exportArea.remove();
+
+
         showStatus(
-            `${pageCount} PDF page${
-                pageCount === 1
+            `${pages.length} PDF page${
+                pages.length === 1
                     ? ""
                     : "s"
             } downloaded.`
@@ -2039,8 +2679,20 @@ async function downloadPDF() {
     catch (error) {
 
         console.error(
+            "PDF export error:",
             error
         );
+
+
+        const exportArea =
+            document.getElementById(
+                "blueline-export-area"
+            );
+
+
+        if (exportArea) {
+            exportArea.remove();
+        }
 
 
         showStatus(
